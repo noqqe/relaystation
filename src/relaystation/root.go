@@ -3,6 +3,7 @@ package relaystation
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/michimani/gotwi"
@@ -20,47 +21,18 @@ func newOAuth2Client() (*gotwi.Client, error) {
 }
 
 func Root() {
-	args := os.Args
 
-	if len(args) < 2 {
-		fmt.Println("The 1st parameter for command is required. (create|stream)")
-		os.Exit(1)
-	}
+	r := loadRules()
+	// log.Println(r)
+	os.Exit(1)
+	log.Println("Cleaning rules")
+	_, to_clear := listSearchStreamRules()
 
-	command := args[1]
-
-	switch command {
-	case "list":
-		// list search stream rules
-		listSearchStreamRules()
-	case "delete":
-		// delete a specified rule
-		if len(args) < 3 {
-			fmt.Println("The 2nd parameter for rule ID to delete is required.")
-			os.Exit(1)
-		}
-
-		ruleID := args[2]
-		deleteSearchStreamRules(ruleID)
-	case "create":
-		// create a search stream rule
-		if len(args) < 3 {
-			fmt.Println("The 2nd parameter for keyword of search stream rule is required.")
-			os.Exit(1)
-		}
-
-		keyword := args[2]
-		createSearchStreamRules(keyword)
-	case "stream":
-		// exec filtered stream API
-		for {
-			execSearchStream()
-		}
-	default:
-		fmt.Println("Undefined command. Command should be 'create' or 'stream'.")
-		os.Exit(1)
-	}
-	//createSearchStreamRules("-is:retweet (from:zeitonline OR from:elhotzo")
+	deleteSearchStreamRules(to_clear)
+	//listSearchStreamRules
+	createSearchStreamRules(os.Getenv("RULE_1"))
+	//listSearchStreamRules
+	execSearchStream()
 
 }
 
@@ -116,23 +88,27 @@ func createSearchStreamRules(keyword string) {
 }
 
 // createSearchStreamRules lists search stream rules.
-func listSearchStreamRules() {
+func listSearchStreamRules() (error, Rules) {
+
+	rules := make(Rules, 5)
 	c, err := newOAuth2Client()
 	if err != nil {
 		fmt.Println(err)
-		return
+		return fmt.Errorf("Could not get OAuth2Client. Check credentials"), rules
 	}
 
 	p := &types.ListRulesInput{}
 	res, err := filteredstream.ListRules(context.Background(), c, p)
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		return fmt.Errorf("Could not get rules"), rules
 	}
 
-	for _, r := range res.Data {
+	for i, r := range res.Data {
+		rules[i] = gotwi.StringValue(r.ID)
 		fmt.Printf("ID: %s, Value: %s, Tag: %s\n", gotwi.StringValue(r.ID), gotwi.StringValue(r.Value), gotwi.StringValue(r.Tag))
 	}
+	return nil, rules
 }
 
 func deleteSearchStreamRules(ruleID string) {
