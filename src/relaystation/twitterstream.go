@@ -80,7 +80,7 @@ func listSearchStreamRules() (error, Rules) {
 
 	for i, r := range res.Data {
 		rules[i] = gotwi.StringValue(r.ID)
-		log.Printf("ID: %s, Value: %s\n", gotwi.StringValue(r.ID), gotwi.StringValue(r.Value))
+		// log.Printf("ID: %s, Value: %s\n", gotwi.StringValue(r.ID), gotwi.StringValue(r.Value))
 	}
 
 	return nil, rules

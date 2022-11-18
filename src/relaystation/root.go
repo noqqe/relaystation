@@ -2,6 +2,7 @@ package relaystation
 
 import (
 	"log"
+	"os"
 
 	"github.com/michimani/gotwi"
 )
@@ -20,20 +21,25 @@ func Root() {
 	var to_create Rules
 	var to_delete Rules
 
-	log.Println("Loading rules from environment")
-	to_create = loadRules()
+	// Silly hack for not writing an option parser
+	// TODO: make it clean
+	if len(os.Args) > 1 {
 
-	log.Println("Fetching current rules to delete")
-	_, to_delete = listSearchStreamRules()
+		log.Println("Loading rules from environment")
+		to_create = loadRules()
 
-	log.Println("Clearing current rules")
-	for _, rule := range to_delete {
-		deleteSearchStreamRules(rule)
-	}
+		log.Println("Fetching current rules to delete")
+		_, to_delete = listSearchStreamRules()
 
-	log.Println("Create new rules")
-	for _, rule := range to_create {
-		createSearchStreamRules(rule)
+		log.Println("Clearing current rules")
+		for _, rule := range to_delete {
+			deleteSearchStreamRules(rule)
+		}
+
+		log.Println("Create new rules")
+		for _, rule := range to_create {
+			createSearchStreamRules(rule)
+		}
 	}
 
 	log.Println("Current rules configuration:")
