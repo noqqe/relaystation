@@ -42,6 +42,8 @@ func Root() {
 		}
 	}
 
+	loadAccounts()
+
 	log.Println("Current rules configuration:")
 	listSearchStreamRules()
 
