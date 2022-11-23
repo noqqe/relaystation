@@ -20,6 +20,7 @@ func Root() {
 
 	var to_create Rules
 	var to_delete Rules
+	var accs []AccountMap
 
 	// Silly hack for not writing an option parser
 	// TODO: make it clean
@@ -42,8 +43,11 @@ func Root() {
 		}
 	}
 
-	loadAccounts()
+	accountids := loadAccounts()
+	accs = fetchUsernames(accountids)
+	log.Println(accs)
 
+	os.Exit(1)
 	log.Println("Current rules configuration:")
 	listSearchStreamRules()
 

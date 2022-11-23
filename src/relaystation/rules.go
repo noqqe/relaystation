@@ -45,7 +45,7 @@ func loadRules() Rules {
 // Loads ruleset from environment variables and converts them to a list of accountnames
 // This is needed for caching account IDs at startup
 // from:foo OR from:bar -> [ foo, bar ]
-func loadAccounts() {
+func loadAccounts() []string {
 
 	var accounts string
 	var accountList []string
@@ -60,6 +60,6 @@ func loadAccounts() {
 	accounts = strings.Replace(accounts, "OR ", "", 1000)
 	accounts = strings.Replace(accounts, "from:", "", 1000)
 	accountList = strings.Split(accounts, " ")
-	log.Println(accountList)
+	return accountList
 
 }
