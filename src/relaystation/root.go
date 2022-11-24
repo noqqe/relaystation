@@ -16,7 +16,9 @@ func newOAuth2Client() (*gotwi.Client, error) {
 	return gotwi.NewClient(in2)
 }
 
-func Root() {
+func Root(version string) {
+
+	log.Printf("Starting up relaystation %s", version)
 
 	var to_create Rules
 	var to_delete Rules

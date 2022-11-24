@@ -4,6 +4,8 @@ import (
 	"github.com/noqqe/relaystation/src/relaystation"
 )
 
+var Version string
+
 func main() {
-	relaystation.Root()
+	relaystation.Root(Version)
 }

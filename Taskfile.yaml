@@ -1,25 +1,29 @@
 # https://taskfile.dev
 
-version: '3'
+version: 3
 
 tasks:
   build:
     cmds:
-      - go build -ldflags "-X github.com/noqqe/veilig/src/serra.Version=`git describe --tags`"  -v veilig.go
+      - go build -ldflags "-X main.Version=`git describe --tags`"  -v .
     sources:
-      - "src/veilig/**/*.go"
-      - "veilig.go"
+      - "src/relaystation/*.go"
+      - "relaystation.go"
     generates:
-      - "./veilig"
+      - "./relaystation"
+
+  run:
+    deps: [build]
+    cmds:
+      - ./relaystation
 
   release:
-    interactive: true 
     cmds:
-      - read -p "Version v1.1.1 " version ; git tag $version
+      - git tag
+      - read -p "Version v1.1.1 " version ; git tag $version ; docker build -t noqqe/relaystation:$version . ;  docker push noqqe/relaystation:$version
       - git push --tags
-      - goreleaser release --rm-dist
+    interactive: true
 
   default:
     cmds:
       - task: build
-

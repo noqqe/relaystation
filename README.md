@@ -8,4 +8,4 @@ our usecase is rather specific hence the name relaystation is
 
 Licensed under MIT license.
 
-See [LICENSE.txt](https://raw.githubusercontent.com/noqqe/veilig/master/LICENSE.txt) file for details.
+See [LICENSE.txt](https://raw.githubusercontent.com/noqqe/relaystation/master/LICENSE.txt) file for details.
