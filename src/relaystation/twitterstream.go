@@ -10,7 +10,7 @@ import (
 	"github.com/michimani/gotwi/tweet/filteredstream/types"
 )
 
-func execSearchStream() {
+func execSearchStream(accs Accounts) {
 	c, err := newOAuth2Client()
 	if err != nil {
 		log.Println(err)
@@ -31,7 +31,14 @@ func execSearchStream() {
 			log.Println(err)
 		} else {
 			if t != nil {
-				fmt.Println(gotwi.StringValue(t.Data.AuthorID), gotwi.StringValue(t.Data.ID), gotwi.StringValue(t.Data.Text))
+				log.Println("Found Tweet: " + gotwi.StringValue(t.Data.AuthorID) + " " + gotwi.StringValue(t.Data.ID))
+				username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
+				err := postToMastodon(username + ": " + gotwi.StringValue(t.Data.Text))
+				if err != nil {
+					log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
+				} else {
+					log.Printf("Posted tweet from %s to mastodon\n", username)
+				}
 			}
 		}
 	}

@@ -47,15 +47,10 @@ func Root(version string) {
 
 	accountids := loadAccounts()
 	accs = fetchUsernames(accountids)
-	log.Println(accs)
-
-	os.Exit(1)
-	log.Println("Current rules configuration:")
-	listSearchStreamRules()
 
 	log.Println("Starting stream...")
 	for {
-		execSearchStream()
+		execSearchStream(accs)
 	}
 
 }

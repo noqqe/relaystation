@@ -3,20 +3,22 @@ package relaystation
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/michimani/gotwi"
 	"github.com/michimani/gotwi/user/userlookup"
 	"github.com/michimani/gotwi/user/userlookup/types"
 )
 
+type Accounts []AccountMap
 type AccountMap struct {
 	ID       string
 	Username string
 }
 
-func fetchUsernames(usernames []string) []AccountMap {
+func fetchUsernames(usernames []string) Accounts {
 
-	accs := make([]AccountMap, len(usernames))
+	accs := make(Accounts, len(usernames))
 
 	c, err := newOAuth2Client()
 	if err != nil {
@@ -35,8 +37,18 @@ func fetchUsernames(usernames []string) []AccountMap {
 			log.Println(err)
 		}
 		accs[i].ID = *output.Data.ID
-		accs[i].Username = *output.Data.Username
+		accs[i].Username = *output.Data.Name
+		log.Printf("Tracking: " + *output.Data.Name)
 	}
 
 	return accs
+}
+
+func (accs Accounts) translateIDtoUsername(id string) string {
+	for _, v := range accs {
+		if strings.Contains(v.ID, id) {
+			return v.Username
+		}
+	}
+	return ""
 }
