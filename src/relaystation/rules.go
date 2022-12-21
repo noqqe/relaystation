@@ -62,7 +62,6 @@ func loadAccounts() []string {
 			accountList = append(accountList, strings.Replace(v, "from:", "", 1))
 		}
 	}
-	log.Println(accountList)
 
 	return accountList
 }
