@@ -18,6 +18,7 @@ func newOAuth2Client() (*gotwi.Client, error) {
 
 func Root(version string) {
 
+	log.SetOutput(os.Stdout)
 	log.Printf("Starting up relaystation %s", version)
 
 	var to_create Rules

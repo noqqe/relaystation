@@ -33,11 +33,11 @@ func execSearchStream(accs Accounts) {
 			if t != nil {
 				log.Println("Found Tweet: " + gotwi.StringValue(t.Data.AuthorID) + " " + gotwi.StringValue(t.Data.ID))
 				username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
-				err := postToMastodon(username + ": " + gotwi.StringValue(t.Data.Text))
+				status, err := postToMastodon(username + ": " + gotwi.StringValue(t.Data.Text))
 				if err != nil {
 					log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
 				} else {
-					log.Printf("Posted tweet from %s to mastodon\n", username)
+					log.Printf("Posted tweet from %s to mastodon: %s\n", username, status.URL)
 				}
 			}
 		}
