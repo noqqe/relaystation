@@ -35,17 +35,20 @@ func execSearchStream(accs Accounts) {
 			log.Println(err)
 		} else {
 			if t != nil {
-				log.Println("Found Tweet: " + gotwi.StringValue(t.Data.AuthorID) + " " + gotwi.StringValue(t.Data.ID))
 
 				username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
+				log.Printf("Found Tweet from %s (%s): %s", username, gotwi.StringValue(t.Data.AuthorID), gotwi.StringValue(t.Data.ID))
 				toottext := html.UnescapeString(gotwi.StringValue(t.Data.Text))
-				log.Println(&t.Data)
 
-				status, err := postToMastodon(username + ": " + toottext)
-				if err != nil {
-					log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
+				if !dryrun {
+					status, err := postToMastodon(username + ": " + toottext)
+					if err != nil {
+						log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
+					} else {
+						log.Printf("Posted tweet from %s to mastodon: %s\n", username, status.URL)
+					}
 				} else {
-					log.Printf("Posted tweet from %s to mastodon: %s\n", username, status.URL)
+					log.Printf("Not posting tweet to mastodon. Because --dryrun is active.\n")
 				}
 			}
 		}
