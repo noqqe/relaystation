@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/michimani/gotwi"
+	"github.com/michimani/gotwi/fields"
 	"github.com/michimani/gotwi/tweet/filteredstream"
 	"github.com/michimani/gotwi/tweet/filteredstream/types"
 )
@@ -18,7 +19,9 @@ func execSearchStream(accs Accounts) {
 		return
 	}
 
-	p := &types.SearchStreamInput{}
+	p := &types.SearchStreamInput{
+		Expansions: fields.ExpansionList{fields.ExpansionAuthorID, fields.ExpansionAttachmentsMediaKeys},
+	}
 
 	s, err := filteredstream.SearchStream(context.Background(), c, p)
 	if err != nil {
@@ -36,6 +39,7 @@ func execSearchStream(accs Accounts) {
 
 				username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
 				toottext := html.UnescapeString(gotwi.StringValue(t.Data.Text))
+				log.Println(&t.Data)
 
 				status, err := postToMastodon(username + ": " + toottext)
 				if err != nil {
@@ -57,6 +61,7 @@ func createSearchStreamRules(keyword string) {
 
 	p := &types.CreateRulesInput{
 		Add: []types.AddingRule{
+
 			{Value: gotwi.String(keyword), Tag: gotwi.String(keyword)},
 		},
 	}

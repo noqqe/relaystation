@@ -67,10 +67,13 @@ func postToMastodon(text string) (*mastodon.Status, error) {
 	t = &mastodon.Toot{}
 	t.Status = text
 
-	status, err := c.PostStatus(context.Background(), t)
-	if err != nil {
-		log.Fatal(err)
-		return status, err
+	if !dryrun {
+		status, err := c.PostStatus(context.Background(), t)
+		if err != nil {
+			log.Fatal(err)
+			return status, err
+		}
 	}
-	return status, nil
+
+	return &mastodon.Status{}, nil
 }

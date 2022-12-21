@@ -5,7 +5,7 @@ version: 3
 tasks:
   build:
     cmds:
-      - go build -ldflags "-X main.Version=`git describe --tags`"  -v .
+      - go build -ldflags "-X github.com/noqqe/relaystation/src/relaystation.Version=`git describe --tags`"  -v .
     sources:
       - "src/relaystation/*.go"
       - "relaystation.go"
