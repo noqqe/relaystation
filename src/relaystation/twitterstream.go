@@ -3,6 +3,7 @@ package relaystation
 import (
 	"context"
 	"fmt"
+	"html"
 	"log"
 
 	"github.com/michimani/gotwi"
@@ -32,8 +33,11 @@ func execSearchStream(accs Accounts) {
 		} else {
 			if t != nil {
 				log.Println("Found Tweet: " + gotwi.StringValue(t.Data.AuthorID) + " " + gotwi.StringValue(t.Data.ID))
+
 				username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
-				status, err := postToMastodon(username + ": " + gotwi.StringValue(t.Data.Text))
+				toottext := html.UnescapeString(gotwi.StringValue(t.Data.Text))
+
+				status, err := postToMastodon(username + ": " + toottext)
 				if err != nil {
 					log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
 				} else {
