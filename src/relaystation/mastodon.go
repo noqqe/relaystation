@@ -53,7 +53,6 @@ func postToMastodon(text string) (*mastodon.Status, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(app)
 	c = mastodon.NewClient(&mastodon.Config{
 		Server:       m.Server,
 		ClientID:     app.ClientID,
