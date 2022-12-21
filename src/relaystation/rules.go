@@ -54,12 +54,15 @@ func loadAccounts() []string {
 
 	for _, envVar := range envVars {
 		o := os.Getenv(envVar)
-		accounts = accounts + o
+		accounts = accounts + " " + o
 	}
 
-	accounts = strings.Replace(accounts, "OR ", "", 1000)
-	accounts = strings.Replace(accounts, "from:", "", 1000)
-	accountList = strings.Split(accounts, " ")
-	return accountList
+	for _, v := range strings.Split(accounts, " ") {
+		if strings.Contains(v, "from:") {
+			accountList = append(accountList, strings.Replace(v, "from:", "", 1))
+		}
+	}
+	log.Println(accountList)
 
+	return accountList
 }
