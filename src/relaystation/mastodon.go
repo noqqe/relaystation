@@ -85,17 +85,11 @@ func (m Mastodon) ComposeToot(t *streamtypes.SearchStreamOutput, accs Accounts, 
 
 	// Convert and add text to toot
 	username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
-	log.Printf("extracted username: %s", username)
 	text := html.UnescapeString(gotwi.StringValue(t.Data.Text))
-
-	toot.Status = text
-	// toot.Status = username + ": " + text
-	log.Printf("Composed text: %s", toot.Status)
+	toot.Status = username + ": " + text
 
 	image_urls := tw.fetchTweet(gotwi.StringValue(t.Data.ID))
-	log.Printf("image_urls: %s", image_urls)
 	attachments = m.uploadMedia(image_urls)
-	log.Printf("attachments: %s", attachments)
 	for _, v := range attachments {
 		toot.MediaIDs = append(toot.MediaIDs, v.ID)
 	}
