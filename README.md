@@ -8,7 +8,7 @@ pro cycling. I wanted to bring the 18 UCI Worldtour Teams to the Fediverse,
 so I wrote this tool.
 
 The goal of relaystation is to be a general purpose tool to forward any
-Twitter Stream API expression into the Fediverse.
+Twitter Stream API [rules](https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/integrate/build-a-rule) expression into the Fediverse.
 
 ## Installation
 
@@ -18,6 +18,7 @@ You can fetch the Docker Image or checkout the repo
     ./relaystation
 
 ## Configuration
+
 
 ```
 export GOTWI_API_KEY=“xxx”
