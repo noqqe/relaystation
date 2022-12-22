@@ -67,6 +67,7 @@ func (tw Twitter) execSearchStream(accs Accounts) {
 				// handover all relevant data to composing stage
 				// if dryrun is off, actually post the composed toot
 				toot := m.ComposeToot(t, accs, tw)
+
 				if !dryrun {
 					m.postToMastodon(toot)
 				} else {
@@ -164,7 +165,6 @@ func (t Twitter) fetchTweet(id string) []string {
 	}
 
 	for _, v := range output.Includes.Media {
-		log.Printf(gotwi.StringValue(v.URL))
 		urls = append(urls, gotwi.StringValue(v.URL))
 	}
 

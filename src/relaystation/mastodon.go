@@ -88,6 +88,7 @@ func (m Mastodon) ComposeToot(t *streamtypes.SearchStreamOutput, accs Accounts, 
 	text := html.UnescapeString(gotwi.StringValue(t.Data.Text))
 	toot.Status = username + ": " + text
 
+	log.Printf("Found tweet from %s: %s\n", username, gotwi.StringValue(t.Data.ID))
 	image_urls := tw.fetchTweet(gotwi.StringValue(t.Data.ID))
 	attachments = m.uploadMedia(image_urls)
 	for _, v := range attachments {
@@ -102,10 +103,11 @@ func (m Mastodon) postToMastodon(toot *mastodon.Toot) (*mastodon.Status, error) 
 
 	status, err := m.Client.PostStatus(context.Background(), toot)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
 		return &mastodon.Status{}, err
 	}
 
+	log.Printf("Posted toot to mastodon: %s\n", status.URL)
 	return status, nil
 }
 
