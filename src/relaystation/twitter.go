@@ -46,6 +46,7 @@ func newTwitterClient() (Twitter, error) {
 // Stream API
 
 func (t Twitter) execSearchStream(accs Accounts) {
+	m := newMastodonClient()
 
 	p := &streamtypes.SearchStreamInput{
 		Expansions: fields.ExpansionList{fields.ExpansionAuthorID, fields.ExpansionAttachmentsMediaKeys},
@@ -69,7 +70,7 @@ func (t Twitter) execSearchStream(accs Accounts) {
 				toottext := html.UnescapeString(gotwi.StringValue(t.Data.Text))
 
 				if !dryrun {
-					status, err := postToMastodon(username + ": " + toottext)
+					status, err := m.postToMastodon(username + ": " + toottext)
 					if err != nil {
 						log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
 					} else {
@@ -150,11 +151,14 @@ func (t Twitter) deleteSearchStreamRules(ruleID string) {
 
 // Tweet API
 
-func (t Twitter) fetchTweet(id string) string {
+func (t Twitter) fetchTweet(id string) []string {
 
 	// construct input and output for tweet fetching
 	input := &tweettypes.GetInput{}
 	output := &tweettypes.GetOutput{}
+	var urls []string
+
+	// configure input
 	input.SetAccessToken(gotwi.AuthenMethodOAuth2BearerToken)
 	input.Expansions = append(input.Expansions, fields.ExpansionAttachmentsMediaKeys)
 	input.ID = id
@@ -163,14 +167,15 @@ func (t Twitter) fetchTweet(id string) string {
 	output, err := tweetlookup.Get(context.TODO(), t.Client, input)
 	if err != nil {
 		log.Println(err)
-		return ""
+		return urls
 	}
 
 	for _, v := range output.Includes.Media {
 		log.Printf(gotwi.StringValue(v.URL))
+		urls = append(urls, gotwi.StringValue(v.URL))
 	}
 
-	return ""
+	return urls
 }
 
 // User API

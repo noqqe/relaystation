@@ -45,7 +45,9 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		t.fetchTweet("1605583309475643393")
+		urls := t.fetchTweet("1605583309475643393")
+		m := newMastodonClient()
+		m.uploadMedia(urls)
 		os.Exit(1)
 		accountids := loadAccounts()
 		accs = t.fetchUsernames(accountids)

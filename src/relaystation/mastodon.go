@@ -3,6 +3,7 @@ package relaystation
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/mattn/go-mastodon"
@@ -15,6 +16,12 @@ type MastodonConfig struct {
 	ClientID     string
 	ClientSecret string
 }
+
+type Mastodon struct {
+	Client *mastodon.Client
+}
+
+type Attachments []*mastodon.Attachment
 
 // holy shit this is crap.
 // no validation whatsoever
@@ -35,12 +42,10 @@ func loadMastodonCredentials() *MastodonConfig {
 	return &m
 }
 
-// This posts to mastodon
-func postToMastodon(text string) (*mastodon.Status, error) {
-
+func newMastodonClient() *Mastodon {
 	var m *MastodonConfig
 	var c *mastodon.Client
-	var t *mastodon.Toot
+	var mc Mastodon
 
 	m = loadMastodonCredentials()
 	app, err := mastodon.RegisterApp(context.Background(), &mastodon.AppConfig{
@@ -63,15 +68,52 @@ func postToMastodon(text string) (*mastodon.Status, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mc.Client = c
+	return &mc
+}
 
-	t = &mastodon.Toot{}
+// This posts to mastodon
+func (m Mastodon) postToMastodon(text string, attachments Attachments) (*mastodon.Status, error) {
+
+	var t *mastodon.Toot
 	t.Status = text
+	t.MediaIDs = attachments
 
-	status, err := c.PostStatus(context.Background(), t)
+	status, err := m.Client.PostStatus(context.Background(), t)
 	if err != nil {
 		log.Fatal(err)
 		return &mastodon.Status{}, err
 	}
 
 	return status, nil
+}
+
+func (m Mastodon) uploadMedia(URLs []string) Attachments {
+
+	var attachments Attachments
+	for _, URL := range URLs {
+
+		//Get the response bytes from the url
+		response, err := http.Get(URL)
+		if err != nil {
+			log.Printf("Could not download %s from Twitter\n", URL)
+			continue
+		}
+		defer response.Body.Close()
+
+		if response.StatusCode != 200 {
+			log.Printf("Received non 200 response code while trying to download %s\n", URL)
+		}
+
+		a, err := m.Client.UploadMediaFromReader(context.Background(), response.Body)
+		if err != nil {
+			log.Printf("Could not upload %s to Mastodon\n", URL)
+			continue
+		}
+
+		attachments = append(attachments, a)
+		log.Printf("Uploaded image %s to %s\n", URL, a.URL)
+	}
+
+	return attachments
 }
