@@ -24,7 +24,11 @@ var rootCmd = &cobra.Command{
 		var to_create Rules
 		var to_delete Rules
 		var accs []AccountMap
-		t, _ := newTwitterClient()
+
+		t, err := newTwitterClient()
+		if err != nil {
+			log.Fatalf("Could not get twitter client: %v\n", err)
+		}
 
 		if clean {
 
@@ -45,10 +49,6 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		urls := t.fetchTweet("1605583309475643393")
-		m := newMastodonClient()
-		m.uploadMedia(urls)
-		os.Exit(1)
 		accountids := loadAccounts()
 		accs = t.fetchUsernames(accountids)
 

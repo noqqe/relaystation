@@ -2,11 +2,14 @@ package relaystation
 
 import (
 	"context"
+	"html"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/mattn/go-mastodon"
+	"github.com/michimani/gotwi"
+	streamtypes "github.com/michimani/gotwi/tweet/filteredstream/types"
 )
 
 type MastodonConfig struct {
@@ -72,14 +75,38 @@ func newMastodonClient() *Mastodon {
 	return &mc
 }
 
+// this is a bit of a monster because we need both mastodon and twitter clients
+// here (to fetch tw media and upload mastodon media) not sure how to solve
+// this best, so far but will work it out in the future
+func (m Mastodon) ComposeToot(t *streamtypes.SearchStreamOutput, accs Accounts, tw Twitter) *mastodon.Toot {
+
+	var toot mastodon.Toot
+	var attachments Attachments
+
+	// Convert and add text to toot
+	username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
+	log.Printf("extracted username: %s", username)
+	text := html.UnescapeString(gotwi.StringValue(t.Data.Text))
+
+	toot.Status = text
+	// toot.Status = username + ": " + text
+	log.Printf("Composed text: %s", toot.Status)
+
+	image_urls := tw.fetchTweet(gotwi.StringValue(t.Data.ID))
+	log.Printf("image_urls: %s", image_urls)
+	attachments = m.uploadMedia(image_urls)
+	log.Printf("attachments: %s", attachments)
+	for _, v := range attachments {
+		toot.MediaIDs = append(toot.MediaIDs, v.ID)
+	}
+
+	return &toot
+}
+
 // This posts to mastodon
-func (m Mastodon) postToMastodon(text string, attachments Attachments) (*mastodon.Status, error) {
+func (m Mastodon) postToMastodon(toot *mastodon.Toot) (*mastodon.Status, error) {
 
-	var t *mastodon.Toot
-	t.Status = text
-	t.MediaIDs = attachments
-
-	status, err := m.Client.PostStatus(context.Background(), t)
+	status, err := m.Client.PostStatus(context.Background(), toot)
 	if err != nil {
 		log.Fatal(err)
 		return &mastodon.Status{}, err

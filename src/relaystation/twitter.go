@@ -3,7 +3,6 @@ package relaystation
 import (
 	"context"
 	"fmt"
-	"html"
 	"log"
 	"strings"
 
@@ -45,14 +44,14 @@ func newTwitterClient() (Twitter, error) {
 
 // Stream API
 
-func (t Twitter) execSearchStream(accs Accounts) {
+func (tw Twitter) execSearchStream(accs Accounts) {
 	m := newMastodonClient()
 
 	p := &streamtypes.SearchStreamInput{
 		Expansions: fields.ExpansionList{fields.ExpansionAuthorID, fields.ExpansionAttachmentsMediaKeys},
 	}
 
-	s, err := filteredstream.SearchStream(context.Background(), t.Client, p)
+	s, err := filteredstream.SearchStream(context.Background(), tw.Client, p)
 	if err != nil {
 		log.Println(err)
 		return
@@ -65,17 +64,11 @@ func (t Twitter) execSearchStream(accs Accounts) {
 		} else {
 			if t != nil {
 
-				username := accs.translateIDtoUsername(gotwi.StringValue(t.Data.AuthorID))
-				log.Printf("Found Tweet from %s (%s): %s", username, gotwi.StringValue(t.Data.AuthorID), gotwi.StringValue(t.Data.ID))
-				toottext := html.UnescapeString(gotwi.StringValue(t.Data.Text))
-
+				// handover all relevant data to composing stage
+				// if dryrun is off, actually post the composed toot
+				toot := m.ComposeToot(t, accs, tw)
 				if !dryrun {
-					status, err := m.postToMastodon(username + ": " + toottext)
-					if err != nil {
-						log.Printf("Error posting tweet to mastodon. Error: %s\n", err)
-					} else {
-						log.Printf("Posted tweet from %s to mastodon: %s\n", username, status.URL)
-					}
+					m.postToMastodon(toot)
 				} else {
 					log.Printf("Not posting tweet to mastodon. Because --dryrun is active.\n")
 				}
