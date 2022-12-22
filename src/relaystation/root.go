@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/michimani/gotwi"
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +24,7 @@ var rootCmd = &cobra.Command{
 		var to_create Rules
 		var to_delete Rules
 		var accs []AccountMap
+		t, _ := newTwitterClient()
 
 		if clean {
 
@@ -32,27 +32,27 @@ var rootCmd = &cobra.Command{
 			to_create = loadRules()
 
 			log.Println("Fetching current rules to delete")
-			_, to_delete = listSearchStreamRules()
+			_, to_delete = t.listSearchStreamRules()
 
 			log.Println("Clearing current rules")
 			for _, rule := range to_delete {
-				deleteSearchStreamRules(rule)
+				t.deleteSearchStreamRules(rule)
 			}
 
 			log.Println("Create new rules")
 			for _, rule := range to_create {
-				createSearchStreamRules(rule)
+				t.createSearchStreamRules(rule)
 			}
 		}
 
-		fetchTweet("1605583309475643393")
+		t.fetchTweet("1605583309475643393")
 		os.Exit(1)
 		accountids := loadAccounts()
-		accs = fetchUsernames(accountids)
+		accs = t.fetchUsernames(accountids)
 
 		log.Println("Starting stream...")
 		for {
-			execSearchStream(accs)
+			t.execSearchStream(accs)
 		}
 
 	},
@@ -68,13 +68,4 @@ func Root() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-func newOAuth2Client() (*gotwi.Client, error) {
-
-	in2 := &gotwi.NewClientInput{
-		AuthenticationMethod: gotwi.AuthenMethodOAuth2BearerToken,
-	}
-
-	return gotwi.NewClient(in2)
 }
