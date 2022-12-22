@@ -45,6 +45,8 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
+		fetchTweet("1605583309475643393")
+		os.Exit(1)
 		accountids := loadAccounts()
 		accs = fetchUsernames(accountids)
 

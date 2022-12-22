@@ -70,8 +70,8 @@ func postToMastodon(text string) (*mastodon.Status, error) {
 	status, err := c.PostStatus(context.Background(), t)
 	if err != nil {
 		log.Fatal(err)
-		return status, err
+		return &mastodon.Status{}, err
 	}
 
-	return &mastodon.Status{}, nil
+	return status, nil
 }
