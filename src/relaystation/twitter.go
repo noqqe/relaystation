@@ -185,7 +185,15 @@ func (t Twitter) fetchUsernames(usernames []string) Accounts {
 		output, err := userlookup.GetByUsername(context.TODO(), t.Client, input)
 		if err != nil {
 			log.Println(err)
+			continue
 		}
+
+		// Check if we got a result from twitter api for given user
+		if output.Data.ID == nil {
+			log.Printf("Username %s is not existing", v)
+			continue
+		}
+
 		accs[i].ID = *output.Data.ID
 		accs[i].Username = *output.Data.Name
 		log.Printf("Tracking: " + *output.Data.Name)
