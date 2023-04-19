@@ -10,7 +10,9 @@ RUN go get -v ./...
 RUN go build -ldflags "-X github.com/noqqe/relaystation/src/relaystation.Version=`git describe --tags`" -v . 
 
 # copy
-FROM scratch
+FROM alpine:3.17
+
+RUN apk update && apk add --no-cache ca-certificates
 WORKDIR /go/src/app
 COPY --from=builder /go/src/app/relaystation /go/src/app/relaystation
 
